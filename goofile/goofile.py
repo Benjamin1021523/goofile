@@ -97,7 +97,8 @@ class GooSearch:
 
     def run_basic(self):
         h = http.client.HTTPSConnection('www.google.com')
-        headers = {'Host': 'www.google.com', 'User-agent': 'Internet Explorer 6.0 ', 'Referrer': 'www.g13net.com'}
+        #headers = {'Host': 'www.google.com', 'User-agent': 'Internet Explorer 6.0 ', 'Referer': 'www.g13net.com'}
+        headers = {'Host': 'www.google.com', 'User-agent': 'Internet Explorer 6.0 '}# 不影響，製造真實感?
         h.request('GET', "/search?num=500&q=site:" + getattr(self, 'domain', None) + "+filetype:" + getattr(self, 'filetype', None), headers=headers)
         response = h.getresponse()
         status = response.status
@@ -108,10 +109,12 @@ class GooSearch:
                 data = data.decode('utf-8')
             except UnicodeDecodeError:
                 data = data.decode('latin-1')
-            data = re.sub('<b>', '', data)
+            #data = re.sub('<b>', '', data) #for的處理會把<b>變成 b 。
+            #data = data.replace('<b>', '')
             for e in ('>', '=', '<', '\\', '(', ')', '"', 'http', ':', '//'):
                 data = data.replace(e, ' ')
-            r1 = re.compile('[-_.a-zA-Z0-9.-_]*' + '\.' + getattr(self, 'filetype', None))
+            #r1 = re.compile('[-_.a-zA-Z0-9.-_]*' + '\.' + getattr(self, 'filetype', None))
+            r1 = re.compile('[^ ]*' + '\.' + getattr(self, 'filetype', None)) #可match中文
             res = r1.findall(data)
         elif status == 302:
             print('Your request returned a {0} status. Reason: {1}'.format(status, reason))
